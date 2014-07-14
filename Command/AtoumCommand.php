@@ -9,7 +9,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use atoum\AtoumBundle\Configuration\Bundle as BundleConfiguration;
-use mageekguy\atoum\scripts\runner;
+use atoum\AtoumBundle\Scripts\Runner;
 
 /**
  * AtoumCommand
@@ -50,9 +50,12 @@ EOF
                 )
                 ->addArgument('bundles', InputArgument::IS_ARRAY, 'Launch tests of these bundles.')
                 ->addOption('bootstrap-file', 'bf', InputOption::VALUE_REQUIRED, 'Define the bootstrap file')
-                ->addOption('no-code-coverage', null, InputOption::VALUE_NONE, 'Disable code coverage (big speed increase)')
+                ->addOption('no-code-coverage', 'ncc', InputOption::VALUE_NONE, 'Disable code coverage (big speed increase)')
                 ->addOption('max-children-number', 'mcn', InputOption::VALUE_REQUIRED, 'Maximum number of sub-processus which will be run simultaneously')
                 ->addOption('debug', 'd', InputOption::VALUE_NONE, 'Enables Atoum debug mode')
+                ->addOption('loop', 'l', InputOption::VALUE_NONE, 'Enables Atoum loop mode')
+                ->addOption('--force-terminal', '', InputOption::VALUE_NONE, '')
+                ->addOption('--score-file', '', InputOption::VALUE_REQUIRED, '')
         ;
     }
 
@@ -61,7 +64,7 @@ EOF
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $runner = new runner('atoum');
+        $runner = new Runner('atoum');
 
         $bundles = $input->getArgument('bundles');
         if (count($bundles) > 0) {
@@ -101,6 +104,18 @@ EOF
 
         if ($input->getOption('debug')) {
             $this->setAtoumArgument('--debug');
+        }
+
+        if ($input->getOption('loop')) {
+            $this->setAtoumArgument('--loop');
+        }
+
+        if ($input->getOption('force-terminal')) {
+            $this->setAtoumArgument('--force-terminal');
+        }
+
+        if ($input->getOption('score-file')) {
+            $this->setAtoumArgument('--score-file', $input->getOption('score-file'));
         }
 
         $runner->run($this->getAtoumArguments());
